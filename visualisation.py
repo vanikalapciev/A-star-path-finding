@@ -1,3 +1,4 @@
+import pygame
 class Spot:
     def __init__(self, row, col, width, total_rows):
         self.row = row
@@ -13,40 +14,40 @@ class Spot:
         return self.row, self.col
 
     def is_closed(self):
-        return self.color == (255, 0, 0)
+        return self.color == (113,199,236)
 
     def is_open(self):
-        return self.color == (0, 255, 0)
+        return self.color == (16,125,172)
 
     def is_barrier(self):
         return self.color == (0, 0, 0)
 
     def is_start(self):
-        return self.color == (255, 165 ,0)
+        return self.color == (0, 255 ,0)
 
     def is_end(self):
-        return self.color == (64, 224, 208)
+        return self.color == (255, 0, 0)
 
     def reset(self):
         self.color = (255, 255, 255)
 
     def make_start(self):
-        self.color = (255, 165 ,0)
+        self.color = (0, 255 ,0)
 
     def make_closed(self):
-        self.color = (255, 0, 0)
+        self.color = (113,199,236)
 
     def make_open(self):
-        self.color = (0, 255, 0)
+        self.color = (16,125,172)
 
     def make_barrier(self):
         self.color = (0, 0, 0)
 
     def make_end(self):
-        self.color = (64, 224, 208)
+        self.color = (255, 0, 0)
 
     def make_path(self):
-        self.color = (128, 0, 128)
+        self.color = (255, 0, 0)
 
     def draw(self, win):
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
@@ -80,52 +81,6 @@ def reconstruct_path(came_from, current, draw):
         current = came_from[current]
         current.make_path()
         draw()
-
-
-def algorithm(draw, grid, start, end):
-    count = 0
-    open_set = PriorityQueue()
-    open_set.put((0, count, start))
-    came_from = {}
-    g_score = {spot: float("inf") for row in grid for spot in row}
-    g_score[start] = 0
-    f_score = {spot: float("inf") for row in grid for spot in row}
-    f_score[start] = h(start.get_pos(), end.get_pos())
-
-    open_set_hash = {start}
-
-    while not open_set.empty():
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-        current = open_set.get()[2]
-        open_set_hash.remove(current)
-
-        if current == end:
-            reconstruct_path(came_from, end, draw)
-            end.make_end()
-            return True
-
-        for neighbor in current.neighbors:
-            temp_g_score = g_score[current] + 1
-
-            if temp_g_score < g_score[neighbor]:
-                came_from[neighbor] = current
-                g_score[neighbor] = temp_g_score
-                f_score[neighbor] = temp_g_score + h(neighbor.get_pos(), end.get_pos())
-                if neighbor not in open_set_hash:
-                    count += 1
-                    open_set.put((f_score[neighbor], count, neighbor))
-                    open_set_hash.add(neighbor)
-                    neighbor.make_open()
-
-        draw()
-
-        if current != start:
-            current.make_closed()
-
-    return False
 
 
 def make_grid(rows, width):
